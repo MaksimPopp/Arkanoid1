@@ -1,0 +1,75 @@
+import pygame
+pygame.init()
+
+back = (200,255,255)
+mw = pygame.display.set_mode((500,500))
+mw.fill(back)
+
+clock = pygame.time.Clock()
+
+class Area():
+    def __init__(self, x=0, y=0, width=10, height=10, color=None):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.fill_color = back
+    def color(self, new_color):
+        self.fill_color = new_color
+    def fill(self):
+        pygame.draw.rect(mw, self.fill_color, self.rect)
+    def outline(self, frame_color, thickness):
+        pygame.draw.rect(mw, frame_color, self.rect, thickness)
+    def collidepoint(self, x, y):
+        return self.rect.collidepoint(x,y)
+    def colliderect(self, rect):
+        return self.rect.colliderect(rect)
+
+class Picture(Area):
+    def __init__(self, filename, x = 0, y = 0, width = 10, height = 10):
+        super().__init__(x = x, y = y, width = width, height = height, color = None)
+        self.image = pygame.image.load(filename)
+    def draw(self):
+        mw.blit(self.image, (self.rect.x, self.rect.y))
+
+racket_x = 200
+racket_y = 330
+
+ball = Picture('ball.png', 160, 200, 50, 50)
+platform = Picture('platform.png', racket_x, racket_y, 100,30)
+
+start_x = 5
+start_y = 5
+count = 9
+monsters = list()
+for j in range(3):
+    x = start_x + (27.5*j)
+    y = start_y + (55*j)
+    for i in range(count):
+        d = Picture('enemy.png', x, y, 50, 50)
+        monsters.append(d)
+        x = x + 55
+    count -= 1
+move_right = False
+move_left = False
+while True:
+    platform.fill()
+    ball.fill()
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                move_right = True
+            if event.key == pygame.K_LEFT:
+                move_left = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT:
+                move_right = False
+            if event.key == pygame.K_LEFT:
+                move_left = False
+    if move_right:
+        platform.rect.x += 3
+    if move_left:
+        platform.rect.x -= 3
+    for m in monsters:
+        m.draw()
+    ball.draw()
+    platform.draw()
+    pygame.display.update()
+    clock.tick(40)
